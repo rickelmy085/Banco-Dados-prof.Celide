@@ -1,34 +1,3 @@
-CREATE TABLE aluno (
-	id INT PRIMARY KEY AUTO_INCREMENT,
-    nome TEXT,
-    idade INT,
-    curso TEXT,
-    nota DECIMAL(3,1),
-    data_matricula DATE,
-    status_matricula VARCHAR(10)
-);
-# CREATES aula 06
-INSERT INTO aluno (nome, idade, curso, nota) VALUE
-("Lucas", 20, "Matemática", 8.5),
-("Mariana", 22, "História", 9.0),
-("Pedro", NULL, NULL, NULL),
-("Ana", 19, NULL, NULL),
-("Carlos", NULL, "Física", NULL),
-("Fernanda", 21, NULL, 10.0),
-("Roberto", 18, "Geografia", NULL),
-("Beatriz", NULL, "Química", 7.5),
-("Rafael", 30, "Artes", 6.0);
-INSERT INTO aluno(id, nome, idade ,curso, nota) VALUE
-(100, "João", 25, NULL, NULL);
-
-# CREATES 
-/*("", ,"", , "2025-01-01", "")*/
-INSERT INTO aluno(nome, idade, curso, nota, data_matricula, status_matricula) VALUE
-("Matheus Silva", 18,"Desenvolvimento de Sistemas", 8.5, "2025-02-10", "ativo"),
-("Rafael Ramos", 19,"Administração", 7.0, "2025-02-03", "ativo"),
-("Pedro Costa", 20,"Guia de Turismo", 1.0, "2025-01-01", "trancado"),
-/*Usando o Current*/
-("Rickelmy", 18,"Desenvolvimento de Sistemas", 10.0, CURRENT_DATE(), "trancado"),
 /*Omissão de colunas*/
 ("Camila", NULL,"História", NULL, NULL, NULL),
 /*Caracteres de escape - CORRIGIDO (sem crases externas e com aspas duplas no nome)*/
@@ -48,6 +17,9 @@ INSERT INTO aluno(nome, idade, curso, nota, data_matricula, status_matricula) VA
 INSERT IGNORE INTO aluno(id, nome) VALUES
 (1, "Rodrigo Forçadas");
 
+INSERT INTO aluno(id, nome, idade ,curso, nota) VALUE
+(100, "João", 25, NULL, NULL);
+
 # READS
 select * from aluno;
 /*Operador BETWEEN*/
@@ -61,4 +33,75 @@ SELECT nome FROM aluno WHERE nome LIKE "%Silva%";
 /*Tratamento de Nulos:nota não foi lançada(IS NULL)*/
 SELECT nome, nota FROM aluno WHERE nota IS NULL;
 /*. Agregação Simples*/
-SELECT COUNT(nome) AS total_alunos_ativos FROM aluno WHERE status_matricula = 'Ativo';
+SELECT COUNT(nome) AS total_alunos_ativos FROM aluno WHERE status_matricula = "Ativo";
+/*Ordenação Múltipla: curso ASC, nota DESC*/
+SELECT nome, curso, nota FROM aluno ORDER BY curso ASC, nota DESC;
+/*Exclusão Lógica: NÃO está em Artes*/
+SELECT nome, curso FROM aluno WHERE curso != "Artes";
+/*Média Matemática*/
+SELECT AVG(nota) FROM aluno;
+/*Busca de Distintos*/
+SELECT DISTINCT curso FROM aluno;
+
+# UPDATES
+/*Acréscimo Percentual 10%*/
+UPDATE aluno SET nota = nota * 1.1 WHERE curso = "Banco de Dados";
+/*Condição Dupla (AND)*/
+UPDATE aluno SET status_matricula = "Trancado" WHERE nota < 4.0 AND idade > 18;
+/*Atualização Múltipla (id 12)*/
+UPDATE aluno SET curso = "Desenvolvimento Web", nota = 9.0 WHERE id = 12;
+/*Condição Inclusiva (IN)*/
+UPDATE aluno SET idade = 20 WHERE id IN (2, 5, 7, 10);
+/*Limpando Dados (setando nulo)*/
+UPDATE aluno SET nota = NULL WHERE status_matricula = "Trancado";
+/*Padronização de Texto (LOWER)*/
+UPDATE aluno SET nome = LOWER(nome) WHERE curso = "História";
+/*Condição Alternativa (OR)*/
+UPDATE aluno SET nota = nota - 0.5 WHERE curso = "Física" OR curso = "Química";
+/*Condição por Data*/
+UPDATE aluno SET status_matricula = "Concluido" WHERE data_matricula < "2025-01-01";
+/*Concatenação*/
+UPDATE aluno SET nome = CONCAT(nome, " (Representante)") WHERE id = 3;
+/*Ajuste Dinâmico (Nota > 10 vira 10)*/
+UPDATE aluno SET nota = 10.0 WHERE nota > 10.0;
+
+# DELETES
+# SET SQL_SAFE_UPDATES = 0;
+/*Delete Parcial (LIKE)*/
+DELETE FROM aluno WHERE nome LIKE '%Junior';
+/*Delete com IN*/
+DELETE FROM aluno WHERE id IN (4, 8, 15);
+/*Limpeza de Nulos*/
+DELETE FROM aluno WHERE curso IS NULL;
+/*Delete por Intervalo*/
+DELETE FROM aluno WHERE idade BETWEEN 30 AND 40;
+/*Combinação Exata (Geografia e Trancado)*/
+DELETE FROM aluno WHERE curso = 'Geografia' AND status_matricula = 'Trancado';
+/*Ordenação com Delete (3 menores notas - MySQL)*/
+DELETE FROM aluno ORDER BY nota ASC LIMIT 3;
+/*Delete por Exceção (Menor que 5, exceto DS)*/
+DELETE FROM aluno WHERE nota < 5.0 AND curso != 'Desenvolvimento de Sistemas';
+/*Limpeza por Padrão*/
+DELETE FROM aluno WHERE nome LIKE '%Teste%';
+/*Validação Rigorosa*/
+DELETE FROM aluno WHERE idade < 16 AND YEAR(data_matricula) = 2026;
+/*Remoção Condicional Múltipla*/
+DELETE FROM aluno WHERE nota = 0.0 OR status_matricula IS NULL;
+
+/*Desafio 1: o raio-x do conselho de classe (leitura com agrupamento)*/
+SELECT curso, AVG(nota) FROM aluno GROUP BY curso HAVING AVG(nota) > 7.0;
+
+/*Desafio 2: a migração de sistema (criação dinâmica)*/
+CREATE TABLE alunos_aprovados AS SELECT * FROM aluno WHERE nota >= 6.0;
+SELECT * FROM alunos_aprovados;
+
+/*Desafio 3: a regra de negócio automatizada (update condicional)*/
+UPDATE aluno SET status_matricula = CASE 
+    WHEN nota >= 6.0 THEN "Concluido" 
+    ELSE "Retido" 
+END;
+
+/*Desafio 4: a limpeza de inconsistências (delete com subquery lógica)*/
+DELETE FROM aluno WHERE nota IS NULL AND curso = (SELECT curso FROM aluno WHERE nome = "Pedro Costa");
+
+# Rickelmy Feitosa - 28/05/2026 - Banco de Dados II - ETEC PROFESSOR GAMARGO ARANHA
