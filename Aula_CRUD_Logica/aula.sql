@@ -1,3 +1,17 @@
+CREATE TABLE aluno (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    curso VARCHAR(100),
+    idade INT,
+    nota DECIMAL(4,2),
+    status_matricula VARCHAR(20) DEFAULT 'Ativo',
+    data_matricula DATE DEFAULT (CURRENT_DATE)
+);
+
+INSERT INTO aluno (nome, curso, idade, nota, status_matricula, data_matricula) VALUES
+("Ana Souza", "Matemática", 20, 7.5, "Ativo", "2025-03-10"),
+("Carlos Silva", "Desenvolvimento de Sistemas", 22, 6.0, "Ativo", "2025-03-12"),
+("Mariana Oliveira", "Química", 19, 8.0, "Ativo", "2025-03-15"),
 /*Omissão de colunas*/
 ("Camila", NULL,"História", NULL, NULL, NULL),
 /*Caracteres de escape - CORRIGIDO (sem crases externas e com aspas duplas no nome)*/
